@@ -16,13 +16,9 @@ class WigglyCollectionViewController: UICollectionViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        // Uncomment the following line to preserve selection between presentations
-        // self.clearsSelectionOnViewWillAppear = false
 
-        // Register cell classes
-        self.collectionView!.registerClass(UICollectionViewCell.self, forCellWithReuseIdentifier: reuseIdentifier)
-
-        // Do any additional setup after loading the view.
+        let longPressGesturerecognizer = UILongPressGestureRecognizer(target: self, action: "longPressDetected:")
+        collectionView?.addGestureRecognizer(longPressGesturerecognizer)
     }
 
     override func didReceiveMemoryWarning() {
@@ -56,6 +52,21 @@ class WigglyCollectionViewController: UICollectionViewController {
         cell.backgroundColor = colors[indexPath.row]
     
         return cell
+    }
+    
+    func longPressDetected(gestureRecognizer: UILongPressGestureRecognizer) {
+        let touchLocation = gestureRecognizer.locationInView(collectionView)
+        let cellIndex = collectionView?.indexPathForItemAtPoint(touchLocation)
+        
+        if let index = cellIndex {
+            let cell = collectionView?.cellForItemAtIndexPath(index)
+            
+            let angle: CGFloat = CGFloat(2.0 * M_PI / 180)
+            cell?.transform = CGAffineTransformMakeRotation(-angle)
+            UIView.animateWithDuration(0.1, delay: 0, options: [UIViewAnimationOptions.Autoreverse ,UIViewAnimationOptions.Repeat], animations: { () -> Void in
+                cell?.transform = CGAffineTransformMakeRotation(angle)
+            }, completion: nil)
+        }
     }
 
     // MARK: UICollectionViewDelegate
