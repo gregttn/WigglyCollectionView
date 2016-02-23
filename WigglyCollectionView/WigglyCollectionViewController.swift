@@ -17,8 +17,9 @@ class WigglyCollectionViewController: UICollectionViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        let longPressGesturerecognizer = UILongPressGestureRecognizer(target: self, action: "longPressDetected:")
-        collectionView?.addGestureRecognizer(longPressGesturerecognizer)
+        let gestureRecognizer = UILongPressGestureRecognizer(target: self, action: "longPressDetected:")
+
+        collectionView?.addGestureRecognizer(gestureRecognizer)
     }
 
     override func didReceiveMemoryWarning() {
@@ -26,18 +27,7 @@ class WigglyCollectionViewController: UICollectionViewController {
         // Dispose of any resources that can be recreated.
     }
 
-    /*
-    // MARK: - Navigation
-
-    // In a storyboard-based application, you will often want to do a little preparation before navigation
-    override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
-        // Get the new view controller using [segue destinationViewController].
-        // Pass the selected object to the new view controller.
-    }
-    */
-
     // MARK: UICollectionViewDataSource
-
     override func numberOfSectionsInCollectionView(collectionView: UICollectionView) -> Int {
         return 1
     }
@@ -50,7 +40,7 @@ class WigglyCollectionViewController: UICollectionViewController {
     override func collectionView(collectionView: UICollectionView, cellForItemAtIndexPath indexPath: NSIndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCellWithReuseIdentifier(reuseIdentifier, forIndexPath: indexPath)
         cell.backgroundColor = colors[indexPath.row]
-    
+        
         return cell
     }
     
@@ -58,46 +48,21 @@ class WigglyCollectionViewController: UICollectionViewController {
         let touchLocation = gestureRecognizer.locationInView(collectionView)
         let cellIndex = collectionView?.indexPathForItemAtPoint(touchLocation)
         
-        if let index = cellIndex {
-            let cell = collectionView?.cellForItemAtIndexPath(index)
+        guard let index = cellIndex else {
+            return
+        }
+        
+        if gestureRecognizer.state == .Began {
+            let cell = collectionView?.cellForItemAtIndexPath(index) as? WigglyCollectionViewCell
             
-            let angle: CGFloat = CGFloat(2.0 * M_PI / 180)
-            cell?.transform = CGAffineTransformMakeRotation(-angle)
-            UIView.animateWithDuration(0.1, delay: 0, options: [UIViewAnimationOptions.Autoreverse ,UIViewAnimationOptions.Repeat], animations: { () -> Void in
-                cell?.transform = CGAffineTransformMakeRotation(angle)
-            }, completion: nil)
+            switch cell {
+            case .Some(let cell) where !cell.wiggling:
+                cell.wiggle()
+            case .Some(let cell) where cell.wiggling:
+                cell.stopWiggling()
+            default:
+                print("No cell")
+            }
         }
     }
-
-    // MARK: UICollectionViewDelegate
-
-    /*
-    // Uncomment this method to specify if the specified item should be highlighted during tracking
-    override func collectionView(collectionView: UICollectionView, shouldHighlightItemAtIndexPath indexPath: NSIndexPath) -> Bool {
-        return true
-    }
-    */
-
-    /*
-    // Uncomment this method to specify if the specified item should be selected
-    override func collectionView(collectionView: UICollectionView, shouldSelectItemAtIndexPath indexPath: NSIndexPath) -> Bool {
-        return true
-    }
-    */
-
-    /*
-    // Uncomment these methods to specify if an action menu should be displayed for the specified item, and react to actions performed on the item
-    override func collectionView(collectionView: UICollectionView, shouldShowMenuForItemAtIndexPath indexPath: NSIndexPath) -> Bool {
-        return false
-    }
-
-    override func collectionView(collectionView: UICollectionView, canPerformAction action: Selector, forItemAtIndexPath indexPath: NSIndexPath, withSender sender: AnyObject?) -> Bool {
-        return false
-    }
-
-    override func collectionView(collectionView: UICollectionView, performAction action: Selector, forItemAtIndexPath indexPath: NSIndexPath, withSender sender: AnyObject?) {
-    
-    }
-    */
-
 }
